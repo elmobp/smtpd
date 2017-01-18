@@ -35,6 +35,7 @@ import (
 	"strings"
 	"time"
 	"unicode"
+        "github.com/aws/aws-sdk-go"
 )
 
 // The time format we log messages in.
@@ -1214,4 +1215,29 @@ func NewConn(conn net.Conn, cfg Config, log io.Writer) *Conn {
 		c.Config.LocalName = "localhost"
 	}
 	return c
+}
+
+func SendviaSES(byte email) {
+sess, err := session.NewSession()
+if err != nil {
+    fmt.Println("failed to create session,", err)
+    return
+}
+
+svc := ses.New(sess)
+
+params := &ses.SendRawEmailInput{
+    RawMessage: &ses.RawMessage{
+        Data: []byte(email)
+    },
+    ConfigurationSetName: aws.String("ConfigurationSetName"),
+    },
+}
+resp, err := svc.SendRawEmail(params)
+
+if err != nil {
+    fmt.Println(err.Error())
+    return
+}
+
 }
